@@ -2,28 +2,6 @@
 
 void core()
 {
-	bool flag = true;
-	while (flag)
-	{
-		cout << MAIN_MENU_ADMIN << endl;
-		int number = enterNumberInRange(0, 1);
-		switch (number)
-		{
-		case 1:
-			system("cls");
-			workWithStudents();
-			break;
-		case 0:
-			flag = false;
-			break;
-		default:
-			cout << ERROR_MESSAGE << endl;
-		}
-	}
-}
-
-void workWithStudents()
-{
 	int number;
 	bool flag = true;
 	while (flag)
@@ -31,7 +9,7 @@ void workWithStudents()
 		system("cls");
 		showStudents();
 		cout << STUDENT_MENU_ADMIN << endl;
-		number = enterNumberInRange(0, 5);
+		number = enterNumberInRange(0, 6);
 		switch (number)
 		{
 		case 1:
@@ -52,6 +30,10 @@ void workWithStudents()
 		case 5:
 			deleteStudent();
 			break;
+		case 6:
+			system("cls");
+			individualTask();
+			break;
 		case 0:
 			flag = false;
 			break;
@@ -62,61 +44,80 @@ void workWithStudents()
 	system("cls");
 }
 
+void individualTask()
+{
+	int size = getCountOfStructuresStudent(FILE_OF_STUDENTS);
+	Student* arr = new Student[size];
+	readFileOfStudents(arr);
+	double average_score_university = 0.;
+	for (int i = 0; i < size; i++)
+	{
+		average_score_university += arr[i].exam.average_score;
+	}
+	average_score_university /= size;
+	cout << "Средний балл по университету: " << average_score_university << endl;
+	sortStudentsQuickSort(arr, 0, size - 1);
+	drawHeader();
+	for (int i = 0; i < size; i++)
+	{
+		if (arr[i].exam.average_score <= average_score_university)break;
+		showStudent(arr[i], i);
+	}
+	delete[]arr;
+	system("pause");
+}
+
 void sortStudentExams()
 {
 	int number;
-	cout << MENU_OF_STUDENTS_EXAMS << endl;
-	number = enterNumberInRange(0, 4);
-	/*switch (number)
+	int size = getCountOfStructuresStudent(FILE_OF_STUDENTS);
+	Student* arr = new Student[size];
+	readFileOfStudents(arr);
+	cout << MENU_OF_SORTS_STUDENTS << endl;
+	number = enterNumberInRange(0, 2);
+	switch (number)
 	{
 	case 1:
-		if (isAscending())sortStudentsBy(vec_of_students, mySortByOaipAscending);
-		else sortStudentsBy(vec_of_students, mySortByOaipDescending);
+		sortStudentsLite(arr, size);
 		break;
 	case 2:
-		if (isAscending())sortStudentsBy(vec_of_students, mySortByMathAscending);
-		else sortStudentsBy(vec_of_students, mySortByMathDescending);
-		break;
-	case 3:
-		if (isAscending())sortStudentsBy(vec_of_students, mySortByEnglishAscending);
-		else sortStudentsBy(vec_of_students, mySortByEnglishDescending);
-		break;
-	case 4:
-		if (isAscending())sortStudentsBy(vec_of_students, mySortByPhysicsAscending);
-		else sortStudentsBy(vec_of_students, mySortByPhysicsDescending);
+		sortStudentsQuickSort(arr, 0, size - 1);
 		break;
 	case 0:
 		break;
 	default:
 		cout << ERROR_MESSAGE << endl;
-	}*/
+	}
+	writeFullFileOfStudents(arr, size);
+	delete[]arr;
 }
 
 void editStudent()
 {
 	bool flag = true;
-	cout << "Какого студента вы хотите отредактировать?\nНазад - 0" << endl;
-	int index_for_change = indexOfVectorForChange();
+	cout << "Какого абитуриента вы хотите отредактировать?\nНазад - 0" << endl;
+	int index_for_change = indexOfArrayForChange();
 	if (index_for_change == 0)return;
 	else index_for_change--;
-	Student temp_student;
+	int size = getCountOfStructuresStudent(FILE_OF_STUDENTS);
+	Student* arr = new Student[size];
+	readFileOfStudents(arr);
 	while (flag)
 	{
 		system("cls");
 		drawHeader();
-		showStudents();
-		//displayStudent(vec_of_students.at(index_for_change), index_for_change);
+		showStudent(arr[index_for_change], index_for_change);
 		cout << endl;
 		cout << MENU_OF_EDIT_STUDENT << endl;
 		int number = enterNumberInRange(0, 2);
 		switch (number)
 		{
 		case 1:
-			setFio(temp_student);
+			setFio(arr[index_for_change]);
 			break;
 		case 2:
-			editExams(temp_student);
-			//setAverageScore(vec_of_students.at(index_for_change));
+			editExams(arr[index_for_change]);
+			setAverageScore(arr[index_for_change]);
 			break;
 		case 0:
 			flag = false;
@@ -125,6 +126,8 @@ void editStudent()
 			cout << ERROR_MESSAGE << endl;
 		}
 	}
+	writeFullFileOfStudents(arr, size);
+	delete[]arr;
 }
 
 void editExams(Student& temp_student)
@@ -154,39 +157,25 @@ void editExams(Student& temp_student)
 
 void searchStudents()
 {
-	int number ;
+	int number;
 	bool flag = true;
-	vector <Student> vec_of_finded_students;
 	while (flag)
 	{
-		searchByAverageScore();
-		//system("cls");
-		//if (!vec_of_finded_students.empty())
-		//{
-			//showStudents();
-			cout << MENU_OF_SEARCH_STUDENTS_ADMIN << endl;
-			number = enterNumberInRange(0, 1);
-
-		//}
-		if (number == 0) {
+		cout << MENU_OF_SEARCH_STUDENTS_ADMIN << endl;
+		number = enterNumberInRange(0, 2);
+		switch (number)
+		{
+		case 1:
+			searchByAverageScore();
+			break;
+		case 2:
+			binarySearch();
+			break;
+		case 0:
 			flag = false;
+			break;
+		default:
+			cout << ERROR_MESSAGE << endl;
 		}
-	}
-}
-
-bool isAscending()
-{
-	int number;
-	cout << MENU_OF_ASCENDING_DESCENDING << endl;
-	number = enterNumberInRange(1, 2);
-	switch (number)
-	{
-	case 1:
-		return true;
-	case 2:
-		return false;
-	default:
-		cout << ERROR_MESSAGE << endl;
-		return false;
 	}
 }
